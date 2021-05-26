@@ -36,11 +36,11 @@ namespace BugTracker.Models
         [DisplayName("File Extention")]
         public string ImageContentType { get; set; }
 
-        public virtual ICollection<BTUser> Members { get; set; }
+        public virtual ICollection<BTUser> Members { get; set; } = new HashSet<BTUser>();
 
-        public virtual ICollection<Project> Projects { get; set; }
+        public virtual ICollection<Project> Projects { get; set; } = new HashSet<Project>();
 
-        public virtual ICollection<Invite> Invites { get; set; }
+        public virtual ICollection<Invite> Invites { get; set; } = new HashSet<Invite>();
 
 
     }
