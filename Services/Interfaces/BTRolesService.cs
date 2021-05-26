@@ -23,14 +23,17 @@ namespace BugTracker.Services.Interfaces
             _userManager = userManager;
         }
 
-        public Task<bool> AddUserToRoleAsync(BTUser user, string roleName)
+        public async Task<bool> AddUserToRoleAsync(BTUser user, string roleName)
         {
-            throw new NotImplementedException();
+            bool result = (await _userManager.AddToRoleAsync(user, roleName)).Succeeded;
+            return result;
         }
 
-        public Task<string> GetRoleNameByIdAsync(string roldeId)
+        public async Task<string> GetRoleNameByIdAsync(string roleId)
         {
-            throw new NotImplementedException();
+            IdentityRole role = _context.Roles.Find(roleId);
+            string result = await _roleManager.GetRoleNameAsync(role);
+            return result;
         }
 
         public async Task<bool> IsUserInRoleAsync(BTUser user, string roleName)
@@ -39,19 +42,38 @@ namespace BugTracker.Services.Interfaces
             return result;
         }
 
-        public Task<IEnumerable<string>> ListUserRolesAsync(BTUser user)
+        public async Task<IEnumerable<string>> ListUserRolesAsync(BTUser user)
         {
-            throw new NotImplementedException();
+            IEnumerable<string> result = await _userManager.GetRolesAsync(user);
+
+            return result;
         }
 
-        public Task<bool> RemoveUserFromRoleAsync(BTUser user, string roleName)
+        public async Task<bool> RemoveUserFromRoleAsync(BTUser user, string roleName)
         {
-            throw new NotImplementedException();
+            var result = (await _userManager.RemoveFromRoleAsync(user, roleName)).Succeeded;
+            return result;
         }
 
-        public Task<List<BTUser>> UsersNotInRoleAsync(string roleName)
+        public async Task<List<BTUser>> UsersNotInRoleAsync(string roleName)
         {
-            throw new NotImplementedException();
+            List<BTUser> usersNotInRole = new();
+            try { 
+                //Modify for multi tenants
+                foreach(BTUser user in _context.Users.ToList()) 
+                { 
+                    if(!await IsUserInRoleAsync(user, roleName))
+                    {
+                        usersNotInRole.Add(user);
+                    }
+                }
+            } 
+            catch (Exception ex)
+            {
+                var err = ex.Message;
+                throw;
+            }
+            return usersNotInRole;
         }
     }
 }
