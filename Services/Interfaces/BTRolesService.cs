@@ -51,7 +51,7 @@ namespace BugTracker.Services.Interfaces
 
         public async Task<bool> RemoveUserFromRoleAsync(BTUser user, string roleName)
         {
-            var result = (await _userManager.RemoveFromRoleAsync(user, roleName)).Succeeded;
+            bool result = (await _userManager.RemoveFromRoleAsync(user, roleName)).Succeeded;
             return result;
         }
 

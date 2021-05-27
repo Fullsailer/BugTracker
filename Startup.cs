@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using static BugTracker.Data.DataUtilityClass;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace BugTracker
@@ -41,7 +42,10 @@ namespace BugTracker
                 .AddDefaultTokenProviders();
 
             services.AddScoped<IBTRolesService, BTRolesService>();
-            
+
+            services.AddDbContext<ApplicationDbContext>(options =>
+          options.UseNpgsql(DataUtility.GetConnectionString(Configuration)));
+
             services.AddMvc();
         }
 
