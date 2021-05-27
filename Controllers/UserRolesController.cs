@@ -34,7 +34,7 @@ namespace BugTracker.Controllers
         {
             List<ManageUserRolesViewModel> model = new();
 
-            //TODO: Company Users
+            //TODO: Company Users... Little more work todo
             List<BTUser> users = _context.Users.ToList();
 
             foreach (var user in users)
