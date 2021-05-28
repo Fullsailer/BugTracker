@@ -47,7 +47,7 @@ namespace BugTracker.Services.Interfaces
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogInformation($"Error removing current PM. -Error: {exMessage}");
+                    _logger.LogInformation($"Error removing current PM. -Error: {ex.Message}");
                     return false;
                 }
             }
@@ -100,6 +100,7 @@ namespace BugTracker.Services.Interfaces
             catch (Exception ex)
             {
                 Debug.WriteLine($"*** ERROR *** - Error Adding user to project. --> {ex.Message}");
+                throw;
             }
         }
 
@@ -217,7 +218,9 @@ namespace BugTracker.Services.Interfaces
             catch (Exception ex)
             {
                 Debug.WriteLine($"*** ERROR *** - Error Getting user to project list. --> {ex.Message}");
+                throw;
             }
+         
         }
 
         public async Task RemoveProjectManagerAsync(int projectId)
@@ -249,7 +252,7 @@ namespace BugTracker.Services.Interfaces
                 BTUser user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 Project project = await _context.Project.FirstOrDefaultAsync(p => p.Id == projectId);
 
-                if
+                if (await IsUserOnProject(userId, projectId))
                 {
                     try
                     {
@@ -269,7 +272,7 @@ namespace BugTracker.Services.Interfaces
             }
         }
 
-        public async Task RemoveUsersFromProjectByRoleAsync(string userId, int projectId)
+        public async Task RemoveUsersFromProjectByRoleAsync(string role, int projectId)
         {
             try
             {
