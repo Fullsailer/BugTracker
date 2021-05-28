@@ -40,4 +40,7 @@ namespace BugTracker.Services.Interfaces
 
         public Task<List<BTUser>> SubmittersOnProjectAsync(int projectId);
 
+        public Task<int> LookupProjectPriorityId(string priorityName);
+
     }
+}
