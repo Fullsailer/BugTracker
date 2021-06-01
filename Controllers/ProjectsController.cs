@@ -7,16 +7,24 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BugTracker.Data;
 using BugTracker.Models;
+using BugTracker.Models.ViewModels;
+using BugTracker.Services.Interfaces;
 
 namespace BugTracker.Controllers
 {
     public class ProjectsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IBTProjectService _projectService;
 
         public ProjectsController(ApplicationDbContext context)
         {
             _context = context;
+        }
+
+        public ProjectsController(IBTProjectService projectService)
+        {
+            _projectService = projectService;
         }
 
         // GET: Projects
@@ -125,6 +133,23 @@ namespace BugTracker.Controllers
             ViewData["CompanyId"] = new SelectList(_context.Company, "Id", "Name", project.CompanyId);
             ViewData["ProjectPriorityId"] = new SelectList(_context.Set<ProjectPriority>(), "Id", "Id", project.ProjectPriorityId);
             return View(project);
+        }
+
+        //[Authorize(Roles = "Admin, ProjectManger")]
+        [HttpGet]
+        public async Task<IActionResult> AssignUsers(int id)
+        {
+            ProjectMembersViewModel model = new();
+
+            Project project = (await _projectService.GetAllProjectsByCompany())
+                                    .FirstOrDefaultAsync(p => p.Id == id);
+
+            model.Project = project;
+            List<BTUser> users = await _context.Users.ToListAsync();
+            List<BTUser> memebers = (List<BTUser>)await _projectService.UserOnProjectAsync(id);
+            model.User = new MultiSelectList(users, "Id", "FullName", members);
+            return View(model);
+
         }
 
         // GET: Projects/Delete/5
