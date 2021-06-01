@@ -9,6 +9,7 @@ using BugTracker.Data;
 using BugTracker.Models;
 using BugTracker.Models.ViewModels;
 using BugTracker.Services.Interfaces;
+using BugTracker.Extensions;
 
 namespace BugTracker.Controllers
 {
@@ -141,13 +142,16 @@ namespace BugTracker.Controllers
         {
             ProjectMembersViewModel model = new();
 
+            //get companyID
+            int companyId = User.Identity.GetCompanyId().Value;
+
             Project project = (await _projectService.GetAllProjectsByCompany())
                                     .FirstOrDefaultAsync(p => p.Id == id);
 
             model.Project = project;
             List<BTUser> users = await _context.Users.ToListAsync();
             List<BTUser> memebers = (List<BTUser>)await _projectService.UserOnProjectAsync(id);
-            model.User = new MultiSelectList(users, "Id", "FullName", members);
+            model.Users = new MultiSelectList(users, "Id", "FullName", members);
             return View(model);
 
         }
