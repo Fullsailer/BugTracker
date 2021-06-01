@@ -6,10 +6,33 @@ using BugTracker.Models;
 
 namespace BugTracker.Services.Interfaces
 {
-    public interface IBTTIcketService
+    public interface IBTTicketService
     {
         Task AssignTicketAsync(int ticketId, string userId);
+
         Task<BTUser> GetTicketDeveloperAsync(int ticketId);
+
+        Task<List<Ticket>> GetAllTicketsByCompanyAsync(int companyId);
+
+        Task<List<Ticket>> GetArchivedTicketsByCompanyAsync(int companyId);
+
+        Task<List<Ticket>> GetAllTicketsByPriorityAsync(int companyId, string priorityName);
+
+        Task<List<Ticket>> GetAllTicketsByStatusAsync(int companyId, string statusName);
+
+        Task<List<Ticket>> GetAllTicketsByTypeAsync(int companyId, string typeName);
+
+        Task<List<Ticket>> GetAllPMTicketsAsync(string userId);
+
+        Task<List<Ticket>> GetAllTicketsByRoleAsync(string role, string userId);
+
+        Task<List<Ticket>> GetProjectTicketsByRoleAsync(string role, string userId, int projectId);
+
+        Task<int?> LookupTicketPriorityIdAsync(string priorityName);
+
+        Task<int?> LookupTicketStatusIdAsync(string statusName);
+
+        Task<int?> LookupTicketTypeIdAsync(string typeName);
 
     }
 }
