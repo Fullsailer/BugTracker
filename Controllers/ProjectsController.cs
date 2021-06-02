@@ -145,12 +145,12 @@ namespace BugTracker.Controllers
             //get companyID
             int companyId = User.Identity.GetCompanyId().Value;
 
-            Project project = (await _projectService.GetAllProjectsByCompany())
+            Project project = (await _projectService.GetAllProjectsByCompany(companyId))
                                     .FirstOrDefaultAsync(p => p.Id == id);
 
             model.Project = project;
-            List<BTUser> users = await _context.Users.ToListAsync();
-            List<BTUser> memebers = (List<BTUser>)await _projectService.UserOnProjectAsync(id);
+            List<BTUser> users = await _projectService.UsersNotOnProjectAsync(id, companyId);
+            List<BTUser> members = project.Members.ToList();
             model.Users = new MultiSelectList(users, "Id", "FullName", members);
             return View(model);
 

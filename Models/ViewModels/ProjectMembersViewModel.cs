@@ -8,6 +8,7 @@ namespace BugTracker.Models.ViewModels
     public class ProjectMembersViewModel
     {
         public Project Project { get; set; } = new();
-        public MultiSelectList Users { get; set; }
+        public MultiSelectList Users { get; set; } //populates list box
+        public string[] SelectedUsers { get; set; } // recives selected users
     }
 }
