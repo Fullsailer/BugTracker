@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BugTracker.Data;
 using BugTracker.Models;
+using BugTracker.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace BugTracker.Services.Interfaces
@@ -12,14 +13,14 @@ namespace BugTracker.Services.Interfaces
     {
         private readonly ApplicationDbContext _context;
         private readonly IBTRolesService _rolesService;
-        private readonly IBTProjectService _Projectervice;
+        private readonly IBTProjectService _projectService;
 
         public BTTicketService(ApplicationDbContext context,
-            IBTRolesService rolesService, IBTProjectService Projectervice)
+            IBTRolesService rolesService, IBTProjectService ProjectService)
         {
             _context = context;
             _rolesService = rolesService;
-            _Projectervice = Projectervice;
+            _projectService = projectService;
         }
 
         public async Task AssignTicketsAsync(int ticketId, string userId)
@@ -57,7 +58,8 @@ namespace BugTracker.Services.Interfaces
         {
             try
             {
-                List<Ticket> tickets = await _context.Project.Include(p => p.Company).Where(p => p.CompanyId == companyId)
+                List<Ticket> tickets = await _context.Project.Include(p => p.Company)
+                                                                .Where(p => p.CompanyId == companyId)
                                                                 .SelectMany(p => p.Tickets)
                                                                     .Include(t => t.Attachments)
                                                                     .Include(t => t.Comments)
@@ -88,7 +90,7 @@ namespace BugTracker.Services.Interfaces
                                                                     .Include(t => t.OwnerUser)
                                                                     .Include(t => t.TicketPriority)
                                                                     .Include(t => t.TicketStatus)
-                                                                    .Include(t => t.TickeType)
+                                                                    .Include(t => t.TicketType)
                                                                     .Include(t => t.Project)
                                                                     .Where(t => t.Archived == true)
                                                                     .ToListAsync();
@@ -102,39 +104,18 @@ namespace BugTracker.Services.Interfaces
         public async Task<List<Ticket>> GetAllTicketsByPriorityAsync(int companyId, string priorityName)
         {
             int priorityId = (await LookupTicketPriorityIdAsync(priorityName)).Value;
-            List<Ticket> ticket = new();
 
-            try
-            {
-                tickets = await _context.Project.Where(p => p.CompanyId == companyId)
-                                                .SelectMany(p => p.Tickets)
-                                                    .Include(t => t.Attachments)
-                                                    .Include(t => t.Comments)
-                                                    .Include(t => t.DeveloperUser)
-                                                    .Include(t => t.OwnerUser)
-                                                    .Include(t => t.TicketPriority)
-                                                    .Include(t => t.TicketStatus)
-                                                    .Include(t => t.TicketType)
-                                                    .Include(t => t.Project)
-                                                .Where(t => t.TicketPriorityId == priorityId).ToListAsync();
-            }
-            catch
-            {
-                throw;
-            }
-            return ticket;
-        }
-
-        public async Task<List<Ticket>> GetAllPMTicketsAsync(string userId)
-        {
-            throw new NotImplementedException();
-        }
-
-
-
-        public async Task<List<Ticket>> GetAllTicketsByRoleAsync(string role, string userId)
-        {
-            throw new NotImplementedException();
+            return await _context.Project.Where(p => p.CompanyId == companyId)
+                                            .SelectMany(p => p.Tickets)
+                                                                    .Include(t => t.Attachments)
+                                                                    .Include(t => t.Comments)
+                                                                    .Include(t => t.DeveloperUser)
+                                                                    .Include(t => t.OwnerUser)
+                                                                    .Include(t => t.TicketPriority)
+                                                                    .Include(t => t.TicketStatus)
+                                                                    .Include(t => t.TicketType)
+                                                                    .Include(t => t.Project)
+                                            .Where(t => t.TicketPriorityId == priorityId).ToListAsync();
         }
 
         public async Task<List<Ticket>> GetAllTicketsByStatusAsync(int companyId, string statusName)
@@ -142,19 +123,131 @@ namespace BugTracker.Services.Interfaces
             int statusId = (await LookupTicketStatusIdAsync(statusName)).Value;
             return await _context.Project.Where(p => p.CompanyId == companyId)
                                         .SelectMany(p => p.Tickets)
+                                                                    .Include(t => t.Attachments)
+                                                                    .Include(t => t.Comments)
+                                                                    .Include(t => t.DeveloperUser)
+                                                                    .Include(t => t.OwnerUser)
+                                                                    .Include(t => t.TicketPriority)
+                                                                    .Include(t => t.TicketStatus)
+                                                                    .Include(t => t.TicketType)
+                                                                    .Include(t => t.Project)
                                         .Where(t => t.TicketStatusId == statusId).ToListAsync();
         }
 
         public async Task<List<Ticket>> GetAllTicketsByTypeAsync(int companyId, string typeName)
         {
-            throw new NotImplementedException();
+            int statusId = (await LookupTicketTypeIdAsync(typeName)).Value;
+            return await _context.Project.Where(p => p.CompanyId == companyId)
+                                        .SelectMany(p => p.Tickets)
+                                                                    .Include(t => t.Attachments)
+                                                                    .Include(t => t.Comments)
+                                                                    .Include(t => t.DeveloperUser)
+                                                                    .Include(t => t.OwnerUser)
+                                                                    .Include(t => t.TicketPriority)
+                                                                    .Include(t => t.TicketStatus)
+                                                                    .Include(t => t.TicketType)
+                                                                    .Include(t => t.Project)
+                                        .Where(t => t.TicketTypeId == typeId).ToListAsync();
         }
+        public async Task<List<Ticket>> GetAllPMTicketsAsync(string userId)
+        {
+            List<Project> projects = await _projectService.ListUserProjectsAsync(userId);
+            List<Ticket> tickets = projects.SelectMany(t => t.Tickets).ToList();
+
+            return tickets;
+        }
+
+
+
+        public async Task<List<Ticket>> GetAllTicketsByRoleAsync(string role, string userId)
+        {
+            List<Ticket> tickets = new();
+
+            if (string.Compare(role, "Developer") == 0)
+            {
+                tickets = await _context.Ticket
+                                        .Include(t => t.Attachments)
+                                        .Include(t => t.Comments)
+                                        .Include(t => t.DeveloperUser)
+                                        .Include(t => t.OwnerUser)
+                                        .Include(t => t.TicketPriority)
+                                        .Include(t => t.TicketStatus)
+                                        .Include(t => t.TicketType)
+                                        .Include(t => t.Project)
+                                            .ThenInclude(p => p.Members)
+                                        .Include(t => t.Project)
+                                            .ThenInclude(p => p.ProjectPriority)
+                                        .Where(t => t.DeveloperUserId == userId).ToListAsync();
+            }
+            else if (string.Compare(role, "Submitter") == 0)
+            {
+                tickets = await _context.Ticket
+                                        .Include(t => t.Attachments)
+                                        .Include(t => t.Comments)
+                                        .Include(t => t.DeveloperUser)
+                                        .Include(t => t.OwnerUser)
+                                        .Include(t => t.TicketPriority)
+                                        .Include(t => t.TicketStatus)
+                                        .Include(t => t.TicketType)
+                                        .Include(t => t.Project)
+                                        .ThenInclude(p => p.Members)
+                                        .Include(t => t.Project)
+                                            .ThenInclude(p => p.ProjectPriority)
+                                        .Where(t => t.DeveloperUserId == userId).ToListAsync();
+            }
+            else if (string.Compare(role, Roles.Submitter.ToString()) == 0)
+            {
+                tickets = await _context.Ticket
+                                        .Include(t => t.Attachments)
+                                        .Include(t => t.Comments)
+                                        .Include(t => t.DeveloperUser)
+                                        .Include(t => t.OwnerUser)
+                                        .Include(t => t.TicketPriority)
+                                        .Include(t => t.TicketStatus)
+                                        .Include(t => t.TicketType)
+                                        .Include(t => t.Project)
+                                        .ThenInclude(p => p.Members)
+                                        .Include(t => t.Project)
+                                            .ThenInclude(p => p.ProjectPriority)
+                                        .Where(t => t.DeveloperUserId == userId).ToListAsync();
+            }
+            else if (string.Compare(role, "ProjectManager") == 0)
+            {
+                tickets = await GetAllPMTicketsAsync(userId);
+            }
+            return tickets;
+        }
+
 
 
         public async Task<List<Ticket>> GetProjectTicketsByRoleAsync(string role, string userId, int projectId)
         {
-            throw new NotImplementedException();
+            List<Ticket> tickets = new();
+
+            tickets = (await GetAllTicketsByRoleAsync(role, userId)).Where(t => t.ProjectId == projectId).ToList();
+
+            return tickets;
         }
+
+        public async Task<List<Ticket>> GetProjectTicketsByStatusAsync(string statusName, int companyId, int projectId)
+        {
+            List<Ticket> tickets = new();
+
+            tickets = (await GetAllTicketsByStatusAsync(companyId, statusName)).Where(t => t.ProjectId == projectId).ToList();
+
+            return tickets;
+        }
+
+        public async Task<List<Ticket>> GetProjectTicketsByPriorityAsync(string priorityName, int companyId, int projectId)
+        {
+        
+        }
+
+        public async Task<List<Ticket>> GetProjectTicketsByTypeAsync(string typeName, int companyId, int projectId)
+        {
+
+        }
+
 
 
         public async Task<int?> LookupTicketPriorityIdAsync(string priorityName)
