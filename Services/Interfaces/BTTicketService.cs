@@ -16,14 +16,14 @@ namespace BugTracker.Services.Interfaces
         private readonly IBTProjectService _projectService;
 
         public BTTicketService(ApplicationDbContext context,
-            IBTRolesService rolesService, IBTProjectService ProjectService)
+            IBTRolesService rolesService, IBTProjectService projectService)
         {
             _context = context;
             _rolesService = rolesService;
             _projectService = projectService;
         }
 
-        public async Task AssignTicketsAsync(int ticketId, string userId)
+        public async Task AssignTicketAsync(int ticketId, string userId)
         {
             Ticket ticket = await _context.Ticket.FirstOrDefaultAsync(t => t.Id == ticketId);
 
@@ -136,7 +136,7 @@ namespace BugTracker.Services.Interfaces
 
         public async Task<List<Ticket>> GetAllTicketsByTypeAsync(int companyId, string typeName)
         {
-            int statusId = (await LookupTicketTypeIdAsync(typeName)).Value;
+            int typeId = (await LookupTicketTypeIdAsync(typeName)).Value;
             return await _context.Project.Where(p => p.CompanyId == companyId)
                                         .SelectMany(p => p.Tickets)
                                                                     .Include(t => t.Attachments)
