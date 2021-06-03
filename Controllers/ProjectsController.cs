@@ -24,11 +24,6 @@ namespace BugTracker.Controllers
             _projectService = projectService;
         }
 
-        public ProjectsController(IBTProjectService projectService)
-        {
-            _projectService = projectService;
-        }
-
         // GET: Projects
         public async Task<IActionResult> Index()
         {
