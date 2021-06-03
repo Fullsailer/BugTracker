@@ -22,6 +22,7 @@ namespace BugTracker.Services.Factories
         {
             ClaimsIdentity identity = await base.GenerateClaimsAsync(user);
             identity.AddClaim(new Claim("CompanyId", user.CompanyId.ToString()));
+            identity.AddClaim(new Claim("FullName", user.FullName));
             return identity;
         }
     }

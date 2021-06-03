@@ -146,7 +146,7 @@ namespace BugTracker.Controllers
             int companyId = User.Identity.GetCompanyId().Value;
 
             Project project = (await _projectService.GetAllProjectsByCompany(companyId))
-                                    .FirstOrDefaultAsync(p => p.Id == id);
+                                    .FirstOrDefault(p => p.Id == id);
 
             model.Project = project;
             List<BTUser> users = await _projectService.UsersNotOnProjectAsync(id, companyId);
@@ -155,6 +155,39 @@ namespace BugTracker.Controllers
             return View(model);
 
         }
+
+        //post assign users
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignUsers(ProjectMembersViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                if (model.SelectedUsers != null)
+                {
+
+                    List<string> membersIds = (await _projectService.GetMembersWithoutPMAsync(model.Project.Id))
+                                                                    .Select(m => m.Id).ToList();
+                    
+                    foreach (string id in membersIds)
+                    {
+                        await _projectService.RemoveUserFromProjectAsync(id, model.Project.Id);
+                    }
+                    foreach (string id in model.SelectedUsers)
+                    {
+                        await _projectService.AddUserToProjectAsync(id, model.Project.Id);
+                    }
+                    //goto project details
+                    return RedirectToAction("Index", "Projects");
+                }
+                else
+                {
+                    //send an error message back 
+                }
+            }
+            return View(model);
+        }
+
 
         // GET: Projects/Delete/5
         public async Task<IActionResult> Delete(int? id)

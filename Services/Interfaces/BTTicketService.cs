@@ -240,12 +240,20 @@ namespace BugTracker.Services.Interfaces
 
         public async Task<List<Ticket>> GetProjectTicketsByPriorityAsync(string priorityName, int companyId, int projectId)
         {
-        
+            List<Ticket> tickets = new();
+
+            tickets = (await GetAllTicketsByPriorityAsync(companyId, priorityName)).Where(t => t.ProjectId == projectId).ToList();
+
+            return tickets;
         }
 
         public async Task<List<Ticket>> GetProjectTicketsByTypeAsync(string typeName, int companyId, int projectId)
         {
+            List<Ticket> tickets = new();
 
+            tickets = (await GetAllTicketsByTypeAsync(companyId, typeName)).Where(t => t.ProjectId == projectId).ToList();
+
+            return tickets;
         }
 
 
