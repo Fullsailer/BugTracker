@@ -10,6 +10,7 @@ using BugTracker.Models;
 using BugTracker.Models.ViewModels;
 using BugTracker.Services.Interfaces;
 using BugTracker.Extensions;
+using BugTracker.Models.Enums;
 
 namespace BugTracker.Controllers
 {
@@ -17,11 +18,15 @@ namespace BugTracker.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IBTProjectService _projectService;
+        private readonly IBTCompanyInfoService _infoService;
 
-        public ProjectsController(ApplicationDbContext context, IBTProjectService projectService)
+        public ProjectsController(ApplicationDbContext context, 
+                                  IBTProjectService projectService,
+                                  IBTCompanyInfoService infoService)
         {
             _context = context;
             _projectService = projectService;
+            _infoService = infoService;
         }
 
         // GET: Projects
@@ -145,7 +150,10 @@ namespace BugTracker.Controllers
                                     .FirstOrDefault(p => p.Id == id);
 
             model.Project = project;
-            List<BTUser> users = await _projectService.UsersNotOnProjectAsync(id, companyId);
+            List<BTUser> developers = await _infoService.GetMembersInRoleAsync(Roles.Developer.ToString(), companyId);
+            List<BTUser> submitters = await _infoService.GetMembersInRoleAsync(Roles.Submitter.ToString(), companyId);
+
+            List<BTUser> users = developers.Concat(submitters).ToList();
             List<BTUser> members = project.Members.ToList();
             model.Users = new MultiSelectList(users, "Id", "FullName", members);
             return View(model);
