@@ -47,6 +47,10 @@ namespace BugTracker
             services.AddScoped<IBTProjectService, BTProjectService>();
             services.AddScoped<IBTTicketService, BTTicketService>();
             services.AddScoped<IBTCompanyInfoService, BTCompanyInfoService>();
+            services.AddScoped<IBTNotificationService, BTNotificationService>();
+            services.AddScoped<IBTInviteService, BTInviteService>();
+            services.AddScoped<IBTHistoryService, BTHistoryService>();
+            services.AddScoped<IBTFileService, BTFileService>();
 
             services.AddDbContext<ApplicationDbContext>(options =>
           options.UseNpgsql(DataUtility.GetConnectionString(Configuration)));

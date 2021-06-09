@@ -21,18 +21,21 @@ namespace BugTracker.Controllers
         private readonly IBTProjectService _projectService;
         private readonly IBTTicketService _ticketService;
         private readonly IBTHistoryService _historyService;
+        private readonly IBTCompanyInfoService _companInfoService;
 
         public TicketsController(ApplicationDbContext context,
                                     UserManager<BTUser> userManager,
                                     IBTProjectService projectService,
                                     IBTTicketService ticketService,
-                                    IBTHistoryService historyService)
+                                    IBTHistoryService historyService,
+                                    IBTCompanyInfoService companInfoService)
         {
             _context = context;
             _userManager = userManager;
             _projectService = projectService;
             _ticketService = ticketService;
             _historyService = historyService;
+            _companInfoService = companInfoService;
         }
 
         // GET: Tickets
@@ -42,29 +45,6 @@ namespace BugTracker.Controllers
             return View(await applicationDbContext.ToListAsync());
         }
 
-        // GET: Tickets/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var ticket = await _context.Ticket
-                .Include(t => t.DeveloperUser)
-                .Include(t => t.OwnerUser)
-                .Include(t => t.Project)
-                .Include(t => t.TicketPriority)
-                .Include(t => t.TicketStatus)
-                .Include(t => t.TicketType)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (ticket == null)
-            {
-                return NotFound();
-            }
-
-            return View(ticket);
-        }
 
         // GET: Tickets/Create
         public async Task<IActionResult> Create()
@@ -229,7 +209,7 @@ namespace BugTracker.Controllers
 
         //return View(tickets);
         //}
-
+        [HttpGet]
         public async Task<IActionResult> AssignTicket(int? ticketId)
         {
             if (!ticketId.HasValue)
@@ -246,6 +226,62 @@ namespace BugTracker.Controllers
             return View(model);
         }
 
+        [HttpGet]
+        [AutoValidateAntiforgeryToken]
+        public async Task<IActionResult> AssignTicket(AssignDeveloperViewModel viewModel)
+        {
+            if (!string.IsNullOrEmpty(viewModel.DeveloperId))
+            {
+                BTUser btUser = await _userManager.GetUserAsync(User);
+                BTUser devloper = (await _companInfoService.GetAllMembersAsync(companyId)).FirstOrDefault(m => m.Id == viewModel.DeveloperId);
+                BTUser projectManager = await _projectService.GetProjectManagerAsync(viewModel.Ticket.ProjectId);
+
+                Ticket oldTicket = await _context.Ticket
+                                                 .Include(t => t.TicketPriority)
+                                                 .Include(t => t.TicketStatus)
+                                                 .Include(t => t.TicketType)
+                                                 .Include(t => t.Project)
+                                                 .Include(t => t.DeveloperUser)
+                                                 .AsNoTracking().FirstOrDefaultAsync(t => t.Id == viewModel.Ticket.Id);
+
+                await _ticketService.AssignTicketAsync(viewModel.Ticket.Id, viewModel.DeveloperId);
+
+                Ticket newTicket = await _context.Ticket
+                                                 .Include(t => t.TicketPriority)
+                                                 .Include(t => t.TicketStatus)
+                                                 .Include(t => t.TicketType)
+                                                 .Include(t => t.Project)
+                                                 .Include(t => t.DeveloperUser)
+                                                 .AsNoTracking().FirstOrDefaultAsync(t => t.Id == viewModel.Ticket.Id);
+
+                await _historyService.AddHistoryAsync(oldTicket, newTicket, btUser.Id);
+            }
+            return RedirectToAction("Details", "Ticket", new { id = viewModel.Ticket.Id });
+        }
+
+        // GET: Tickets/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var ticket = await _context.Ticket
+                .Include(t => t.DeveloperUser)
+                .Include(t => t.OwnerUser)
+                .Include(t => t.Project)
+                .Include(t => t.TicketPriority)
+                .Include(t => t.TicketStatus)
+                .Include(t => t.TicketType)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (ticket == null)
+            {
+                return NotFound();
+            }
+
+            return View(ticket);
+        }
 
         // GET: Tickets/Delete/5
         public async Task<IActionResult> Delete(int? id)

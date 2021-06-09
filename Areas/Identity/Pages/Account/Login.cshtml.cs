@@ -59,23 +59,6 @@ namespace BugTracker.Areas.Identity.Pages.Account
             public bool RememberMe { get; set; }
         }
 
-        public async Task OnGetAsync(string returnUrl = null)
-        {
-            if (!string.IsNullOrEmpty(ErrorMessage))
-            {
-                ModelState.AddModelError(string.Empty, ErrorMessage);
-            }
-
-            returnUrl ??= Url.Content("~/");
-
-            // Clear the existing external cookie to ensure a clean login process
-            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
-
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-
-            ReturnUrl = returnUrl;
-        }
-
         public async Task<IActionResult> OnPostAsync(string returnUrl = null, string demoEmail = null)
         {
             returnUrl ??= Url.Content("~/Home/Dashboard");
@@ -96,6 +79,18 @@ namespace BugTracker.Areas.Identity.Pages.Account
                 {
                     ModelState.AddModelError(string.Empty, "Invalid login attempt.");
                     return Page();
+                }
+            }
+
+            if (ModelState.IsValid)
+            {
+                //This doesn't count login failures towards account lockout
+                //To enable password failures to trigger account lockout, set lockoutOnFailure: ture
+                var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation("User logged in.");
+                    return RedirectToAction("Dashboard", "Home");
                 }
             }
 
