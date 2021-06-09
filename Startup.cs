@@ -80,7 +80,7 @@ namespace BugTracker
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Dashboard}/{id?}");
+                    pattern: "{controller=Home}/{action=Landing}/{id?}");
                 endpoints.MapRazorPages();
             });
         }

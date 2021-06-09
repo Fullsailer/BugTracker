@@ -192,12 +192,13 @@ namespace BugTracker.Controllers
             return View(tickets);
         }
 
-        public async Task<IActionResult> MyTickets (int? id)
-        {
-            int ticketId
+       // public async Task<IActionResult> MyTickets (int? id)
+        //{
+          //  int ticketId;
 
-            return View(tickets);
-        }
+
+            //return View(tickets);
+        //}
 
         // GET: Tickets/Delete/5
         public async Task<IActionResult> Delete(int? id)
