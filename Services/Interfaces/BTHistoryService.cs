@@ -16,10 +16,35 @@ namespace BugTracker.Services.Interfaces
         {
             _context = context;
         }
+    public async Task<List<TicketHistory>> GetCompanyTicketsHistoriesAsync(int companyId)
+    {
+        Company company = await _context.Company
+                                        .Include(c => c.Projects)
+                                            .ThenInclude(p => p.Tickets)
+                                                .ThenInclude(t => t.History)
+                                        .FirstOrDefaultAsync(c => c.Id == companyId);
+
+        List<Ticket> tickets = company.Projects.SelectMany(p => p.Tickets).ToList();
+
+        List<TicketHistory> ticketHistories = tickets.SelectMany(t => t.History).ToList();
+
+        return ticketHistories;
+    }
+
+    public async Task<List<TicketHistory>> GetProjectTicketsHistoriesAsync(int projectId)
+    {
+        Project project = await _context.Project
+                                        .Include(p => p.Tickets)
+                                                .ThenInclude(t => t.History)
+                                        .FirstOrDefaultAsync(p => p.Id == projectId);
+        List<TicketHistory> ticketHistory = project.Tickets.SelectMany(t => t.History).ToList();
+
+        return ticketHistory;
+    }
         public async Task AddHistoryAsync(Ticket oldTicket, Ticket newTicket, string userId)
         {
             //New Ticket has been added
-           if(oldTicket == null && newTicket != null)
+            if (oldTicket == null && newTicket != null)
             {
                 TicketHistory history = new()
                 {
@@ -36,13 +61,19 @@ namespace BugTracker.Services.Interfaces
             }
             else
             {
+                //Check Ticket Title
                 if (oldTicket.Title != newTicket.Title)
+                //Check Ticket Description
                 if (oldTicket.Description != newTicket.Description)
+                //Check Ticket Type
                 if (oldTicket.TicketTypeId != newTicket.TicketTypeId)
+                //Check Ticket Priority      
                 if (oldTicket.TicketPriorityId != newTicket.TicketPriorityId)
-                if(oldTicket.TicketStatusId != newTicket.TicketStatusId)
+                //Check Ticket Status
+                if (oldTicket.TicketStatusId != newTicket.TicketStatusId)
+                //Check Ticket Developer                    
                 if (oldTicket.DeveloperUserId != newTicket.DeveloperUserId)
-                                    {
+                {
                     TicketHistory history = new()
                     {
                         TicketId = newTicket.Id,
@@ -75,12 +106,12 @@ namespace BugTracker.Services.Interfaces
                     TicketHistory history = new()
                     {
                         TicketId = newTicket.Id,
-                        Property = "Type",
-                        OldValue = oldTicket.TicketType,
-                        NewValue = newTicket.TicketType,
+                        Property = "TicketTypeId",
+                        OldValue = oldTicket.TicketType.Name,
+                        NewValue = newTicket.TicketType.Name,
                         Created = DateTimeOffset.Now,
                         UserId = userId,
-                        Description = $"New ticket Type: {newTicket.TicketType}"
+                        Description = $"New ticket Type: {newTicket.TicketType.Name}"
                     };
                     await _context.TicketHistory.AddAsync(history);
 
@@ -91,8 +122,8 @@ namespace BugTracker.Services.Interfaces
                     {
                         TicketId = newTicket.Id,
                         Property = "Priority",
-                        OldValue = oldTicket.TicketPriority,
-                        NewValue = newTicket.TicketPriority,
+                        OldValue = oldTicket.TicketPriority.Name,
+                        NewValue = newTicket.TicketPriority.Name,
                         Created = DateTimeOffset.Now,
                         UserId = userId,
                         Description = $"New ticket priority: {newTicket.TicketPriority}"
@@ -106,21 +137,24 @@ namespace BugTracker.Services.Interfaces
                     {
                         TicketId = newTicket.Id,
                         Property = "Status",
-                        OldValue = oldTicket.TicketStatus,
-                        NewValue = newTicket.TicketStatus,
+                        OldValue = oldTicket.TicketStatus.Name,
+                        NewValue = newTicket.TicketStatus.Name,
                         Created = DateTimeOffset.Now,
                         UserId = userId,
                         Description = $"New ticket status: {newTicket.TicketStatus}"
                     };
                     await _context.TicketHistory.AddAsync(history);
 
-                
-                    if (oldTicket.DeveloperUserId != newTicket.DeveloperUserId)
+
+
+                }
+
+                if (oldTicket.DeveloperUserId != newTicket.DeveloperUserId)
                 {
                     TicketHistory history = new()
                     {
                         TicketId = newTicket.Id,
-                        Property = "DeveloperUser",
+                        Property = "Developer",
                         OldValue = oldTicket.DeveloperUser?.FullName ?? "Not Assigned",
                         NewValue = newTicket.DeveloperUser?.FullName,
                         Created = DateTimeOffset.Now,
@@ -129,36 +163,11 @@ namespace BugTracker.Services.Interfaces
                     };
                     await _context.TicketHistory.AddAsync(history);
 
-                }
-                    //Save the TicketHistory DataBaseSet
-                    await _context.SaveChangesAsync();
-
+                };
+                //Save the TicketHistory DataBaseSet
+                await _context.SaveChangesAsync();
             }
-
-        public async Task<List<TicketHistory>> GetCompanyTicketsHistoriesAsync((int companyId)
-        {
-            Company company = await _context.Company
-                                            .Include(c => c.Projects)
-                                                .ThenInclude(p => p.Tickets)
-                                                    .ThenInclude(t => t.History)
-                                            .FirstOrDefaultAsync(c => c.Id == companyId);
-
-            List<Ticket> tickets = company.Projects.SelectMany(p => p.Tickets).ToList();
-
-            List<TicketHistory> ticketHistories = tickets.SelectMany(t => t.History).ToList();
-
-            return ticketHistories;
         }
 
-        public async Task<List<TicketHistory>> GetProjectTicketsHistoriesAsync((int projectId)
-        {
-            Project project = await _context.Project
-                                            .Include(p => p.Tickets)
-                                                  .ThenInclude(t => t.History)
-                                            .FirstOrDefaultAsync(p => p.Id == projectId);
-            List<TicketHistory> ticketHistory = project.Tickets.SelectMany(t => t.History).ToList();
-
-            return ticketHistory;
-        }
-    }
-}
+ 
+}   }

@@ -21,21 +21,21 @@ namespace BugTracker.Controllers
         private readonly IBTProjectService _projectService;
         private readonly IBTTicketService _ticketService;
         private readonly IBTHistoryService _historyService;
-        private readonly IBTCompanyInfoService _companInfoService;
+        private readonly IBTCompanyInfoService _companyInfoService;
 
         public TicketsController(ApplicationDbContext context,
                                     UserManager<BTUser> userManager,
                                     IBTProjectService projectService,
                                     IBTTicketService ticketService,
                                     IBTHistoryService historyService,
-                                    IBTCompanyInfoService companInfoService)
+                                    IBTCompanyInfoService companyInfoService)
         {
             _context = context;
             _userManager = userManager;
             _projectService = projectService;
             _ticketService = ticketService;
             _historyService = historyService;
-            _companInfoService = companInfoService;
+            _companyInfoService = companyInfoService;
         }
 
         // GET: Tickets
@@ -232,8 +232,10 @@ namespace BugTracker.Controllers
         {
             if (!string.IsNullOrEmpty(viewModel.DeveloperId))
             {
+                int companyId = User.Identity.GetCompanyId().Value;
+
                 BTUser btUser = await _userManager.GetUserAsync(User);
-                BTUser devloper = (await _companInfoService.GetAllMembersAsync(companyId)).FirstOrDefault(m => m.Id == viewModel.DeveloperId);
+                BTUser devloper = (await _companyInfoService.GetAllMembersAsync(companyId)).FirstOrDefault(m => m.Id == viewModel.DeveloperId);
                 BTUser projectManager = await _projectService.GetProjectManagerAsync(viewModel.Ticket.ProjectId);
 
                 Ticket oldTicket = await _context.Ticket
