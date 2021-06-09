@@ -191,6 +191,23 @@ namespace BugTracker.Controllers
             }
             return View(model);
         }
+        public async Task<IActionResult> AllProjects()
+        {
+            var applicationDbContext = _context.Project.Include(p => p.Company).Include(p => p.ProjectPriority);
+            return View(await applicationDbContext.ToListAsync());
+        }
+
+        public async Task<IActionResult> MyProjects()
+        {
+            var applicationDbContext = _context.Project.Include(p => p.Company).Include(p => p.ProjectPriority);
+            return View(await applicationDbContext.ToListAsync());
+        }
+
+        public async Task<IActionResult> ProjectArchive()
+        {
+            var applicationDbContext = _context.Project.Include(p => p.Company).Include(p => p.ProjectPriority);
+            return View(await applicationDbContext.ToListAsync());
+        }
 
 
         // GET: Projects/Delete/5
