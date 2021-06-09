@@ -18,6 +18,7 @@
 </head>
 
 <body class="hold-transition sidebar-mini">
+    <partial name="_LogoutPartial"/>
     <div class="wrapper">
 
         <!-- Navbar -->
@@ -32,6 +33,11 @@
                 </li>
                 <li class="nav-item d-none d-sm-inline-block">
                     <a href="#" class="nav-link">Contact</a>
+                </li>
+                <li class="nav-item d-none d-sm-inline-block">
+                    <a class="dropdown-item" href="javascript:document.getElementById('logoutForm').submit();">
+                        <i class="fe fe-power"></i> Sign Out
+                    </a>
                 </li>
             </ul>
 
