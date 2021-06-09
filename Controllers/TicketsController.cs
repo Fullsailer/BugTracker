@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using BugTracker.Services.Interfaces;
 using BugTracker.Extensions;
 using System;
+using System.Collections.Generic;
 
 namespace BugTracker.Controllers
 {
@@ -73,20 +74,20 @@ namespace BugTracker.Controllers
             //TODO: Filter List
             if (User.IsInRole("Admin"))
             {
-             ViewData["ProjectId"] = new SelectList(await _projectService.GetAllProjectsByCompany(companyId), "Id", "Name");
+                ViewData["ProjectId"] = new SelectList(await _projectService.GetAllProjectsByCompany(companyId), "Id", "Name");
             }
             else
             {
 
-            ViewData["ProjectId"] = new SelectList(await _projectService.ListUserProjectsAsync(btUser.Id), "Id", "Name");
+                ViewData["ProjectId"] = new SelectList(await _projectService.ListUserProjectsAsync(btUser.Id), "Id", "Name");
             }
-            
+
 
 
             ViewData["TicketPriorityId"] = new SelectList(_context.Set<TicketPriority>(), "Id", "Id");
 
             ViewData["TicketTypeId"] = new SelectList(_context.Set<TicketType>(), "Id", "Id");
-            
+
             return View();
         }
 
@@ -108,7 +109,7 @@ namespace BugTracker.Controllers
 
                 _context.Add(ticket);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("Details", "Projects", new { id= ticket.ProjectId });
+                return RedirectToAction("Details", "Projects", new { id = ticket.ProjectId });
             }
             ViewData["DeveloperUserId"] = new SelectList(_context.Users, "Id", "Id", ticket.DeveloperUserId);
             ViewData["OwnerUserId"] = new SelectList(_context.Users, "Id", "Id", ticket.OwnerUserId);
@@ -180,6 +181,22 @@ namespace BugTracker.Controllers
             ViewData["TicketStatusId"] = new SelectList(_context.Set<TicketStatus>(), "Id", "Id", ticket.TicketStatusId);
             ViewData["TicketTypeId"] = new SelectList(_context.Set<TicketType>(), "Id", "Id", ticket.TicketTypeId);
             return View(ticket);
+        }
+
+        public async Task<IActionResult> AllTickets(int? id)
+        {
+            int companyId = User.Identity.GetCompanyId().Value;
+
+            List<Ticket> tickets = await _ticketService.GetAllTicketsByCompanyAsync(companyId);
+
+            return View(tickets);
+        }
+
+        public async Task<IActionResult> MyTickets (int? id)
+        {
+            int ticketId
+
+            return View(tickets);
         }
 
         // GET: Tickets/Delete/5

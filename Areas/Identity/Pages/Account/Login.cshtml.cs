@@ -85,8 +85,7 @@ namespace BugTracker.Areas.Identity.Pages.Account
             {
                 var email = _configuration[demoEmail];
                 var password = _configuration["DemoUserPassword"];
-                // This doesn't count login failures towards account lockout
-                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+                
                 var result = await _signInManager.PasswordSignInAsync(email, password, false, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {

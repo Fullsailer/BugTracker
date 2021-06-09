@@ -7,11 +7,15 @@ namespace BugTracker.Models.ViewModels
 {
     public class DashboardViewModel
     {
-        public List<Project> Porjects { get; set; }
+        public List<Project> Projects { get; set; }
 
         public List<Ticket> DevelopmentTickets { get; set; }
 
         public List<Ticket> SubmittedTickets { get; set; }
+
+        public List<Company> Company { get; set; }
+
+        public List<Ticket> Tickets { get; set; }
 
         public List<BTUser> Members { get; set; }
 
