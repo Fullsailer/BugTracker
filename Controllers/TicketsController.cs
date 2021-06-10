@@ -22,13 +22,15 @@ namespace BugTracker.Controllers
         private readonly IBTTicketService _ticketService;
         private readonly IBTHistoryService _historyService;
         private readonly IBTCompanyInfoService _companyInfoService;
+        private readonly IBTNotificationService _notificationService;
 
         public TicketsController(ApplicationDbContext context,
                                     UserManager<BTUser> userManager,
                                     IBTProjectService projectService,
                                     IBTTicketService ticketService,
                                     IBTHistoryService historyService,
-                                    IBTCompanyInfoService companyInfoService)
+                                    IBTCompanyInfoService companyInfoService,
+                                    IBTNotificationService notificationService)
         {
             _context = context;
             _userManager = userManager;
@@ -36,6 +38,7 @@ namespace BugTracker.Controllers
             _ticketService = ticketService;
             _historyService = historyService;
             _companyInfoService = companyInfoService;
+            _notificationService = notificationService;
         }
 
         // GET: Tickets
@@ -84,6 +87,8 @@ namespace BugTracker.Controllers
         {
             if (ModelState.IsValid)
             {
+                BTUser btUser = await _userManager.GetUserAsync(User);
+
                 ticket.Created = DateTimeOffset.Now;
 
                 string userId = _userManager.GetUserId(User);
@@ -91,8 +96,48 @@ namespace BugTracker.Controllers
 
                 ticket.TicketStatusId = (await _ticketService.LookupTicketStatusIdAsync("New")).Value;
 
-                _context.Add(ticket);
+                await _context.AddAsync(ticket);
                 await _context.SaveChangesAsync();
+
+                #region Add History
+                //Add history
+                Ticket newTicket = await _context.Ticket
+                    .Include(t => t.TicketPriority)
+                    .Include(t => t.TicketStatus)
+                    .Include(t => t.TicketType)
+                    .Include(t => t.Project)
+                    .Include(t => t.DeveloperUser)
+                    .AsNoTracking().FirstOrDefaultAsync(t => t.Id == ticket.Id);
+
+                await _historyService.AddHistoryAsync(null, newTicket, btUser.Id);
+                #endregion
+
+                #region Notification
+                BTUser projectManager = await _projectService.GetProjectManagerAsync(ticket.ProjectId);
+                int companyId = User.Identity.GetCompanyId().Value;
+                Notification notification = new()
+                {
+                    TicketId = ticket.Id,
+                    Title = "New Ticket",
+                    Message = $"New Ticket: {ticket?.Title}, was created by {btUser?.FirstName}",
+                    Created = DateTimeOffset.Now,
+                    SenderId = btUser?.Id,
+                    RecipientId = projectManager?.Id
+                };
+
+                if (projectManager != null)
+                {
+                await _notificationService.SaveNotificationAsync(notification);
+                    await _notificationService.EmailNotificationAsync(notification, "New Ticker");
+
+                }
+                else
+                {
+                    //Admin notification
+                    await _notificationService.AdminsNotificationAsync(notification, companyId);
+                }
+                    #endregion
+
                 return RedirectToAction("Details", "Projects", new { id = ticket.ProjectId });
             }
             ViewData["DeveloperUserId"] = new SelectList(_context.Users, "Id", "Id", ticket.DeveloperUserId);
@@ -138,6 +183,8 @@ namespace BugTracker.Controllers
                 return NotFound();
             }
 
+            Notification notification;
+
             if (ModelState.IsValid)
             {
                 int companyId = User.Identity.GetCompanyId().Value;
@@ -158,6 +205,43 @@ namespace BugTracker.Controllers
                     ticket.Updated = DateTimeOffset.Now;
                     _context.Update(ticket);
                     await _context.SaveChangesAsync();
+
+                    //Create and Save a Notification
+                    notification = new()
+                    {
+                        TicketId = ticket.Id,
+                        Title = $"Ticket modified on project - { oldTicket.Project.Name }",
+                        Message = $"Ticket: [{ticket.Id}]: {ticket.Title} updated by {btUser?.FirstName}",
+                        Created = DateTimeOffset.Now,
+                        SenderId = btUser?.Id,
+                        RecipientId = projectManager?.Id
+                    };
+
+                    if (projectManager != null)
+                    {
+                        await _notificationService.SaveNotificationAsync(notification);
+                    }
+                    else
+                    {
+                        //Admin notification
+                        await _notificationService.AdminsNotificationAsync(notification, companyId);
+                    }
+
+                    //Alert developer if ticket is modified
+                    if (ticket.DeveloperUserId != null)
+                    {
+                        notification = new()
+                        {
+                            TicketId = ticket.Id,
+                            Title = "A Ticket assigned to you has been modified",
+                            Message = $"Ticket: [{ticket.Id}] : {ticket.Title} updated by {btUser?.FullName}",
+                            Created = DateTimeOffset.Now,
+                            SenderId = btUser?.Id,
+                            RecipientId = ticket.DeveloperUserId
+                        };
+                        await _notificationService.SaveNotificationAsync(notification);
+
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {

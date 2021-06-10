@@ -54,10 +54,11 @@ namespace BugTracker.Controllers
         public async Task<IActionResult> Dashboard()
         {
             int companyId = User.Identity.GetCompanyId().Value;
+            
 
             DashboardViewModel model = new()
             {
-                Companies = await _companyInfoService.GetCompanyInfoByIdAsync(companyId),
+               
                 Projects = await _projectService.GetAllProjectsByCompany(companyId),
                 Tickets = await _ticketService.GetAllTicketsByCompanyAsync(companyId),
                 Members = await _companyInfoService.GetAllMembersAsync(companyId)
