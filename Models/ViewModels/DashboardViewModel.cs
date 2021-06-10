@@ -13,12 +13,14 @@ namespace BugTracker.Models.ViewModels
 
         public List<Ticket> SubmittedTickets { get; set; }
 
-        public List<Company> Company { get; set; }
+        public List<Company> Companies { get; set; }
 
         public List<Ticket> Tickets { get; set; }
 
         public List<BTUser> Members { get; set; }
 
         public BTUser CurrentUsers { get; set; }
+
+        
     }
 }
