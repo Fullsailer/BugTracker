@@ -8,25 +8,29 @@ using BugTracker.Models;
 using BugTracker.Services.Interfaces;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 public class BTInviteService : IBTInviteService
 {
     private readonly ApplicationDbContext _context;
     private readonly IBTProjectService _projectService;
     private readonly IEmailSender _emailService;
+    private readonly IBTCompanyInfoService _companyInfoService;
 
-    public BTInviteService(ApplicationDbContext context, IBTProjectService projectService,
-                              IEmailSender emailService
-                              )
+    public BTInviteService(ApplicationDbContext context,
+                           IBTProjectService projectService,
+                           IEmailSender emailService,
+                           IBTCompanyInfoService companyInfoService)
     {
         _context = context;
         _projectService = projectService;
         _emailService = emailService;
+        _companyInfoService = companyInfoService;
     }
-
+    
     public async Task<Invite> GetInviteAsync(Guid token, string email)
     {
-        Invite invite = await _context.Invites.Include(i => i.Company)
+        Invite invite = await _context.Invite.Include(i => i.Company)
                                         .Include(i => i.Project)
                                         .Include(i => i.Invitor)
                                         .FirstOrDefaultAsync(i => i.CompanyToken == token && i.InviteeEmail == email);
@@ -36,7 +40,7 @@ public class BTInviteService : IBTInviteService
 
     public async Task<Invite> GetInviteAsync(int id)
     {
-        Invite invite = await _context.Invites.Include(i => i.Company)
+        Invite invite = await _context.Invite.Include(i => i.Company)
                                         .Include(i => i.Project)
                                         .Include(i => i.Invitor)
                                         .FirstOrDefaultAsync(i => i.Id == id);
@@ -46,13 +50,13 @@ public class BTInviteService : IBTInviteService
 
     public async Task<bool> AnyInviteAsync(Guid token, string email)
     {
-        return await _context.Invites.AnyAsync(i => i.CompanyToken == token && i.InviteeEmail == email && i.IsValid == true);
+        return await _context.Invite.AnyAsync(i => i.CompanyToken == token && i.InviteeEmail == email && i.IsValid == true);
     }
 
     public async Task<bool> AcceptInviteAsync(Guid? code, string userId)
     {
 
-        Invite invite = await _context.Invites.FirstOrDefaultAsync(i => i.CompanyToken == code);
+        Invite invite = await _context.Invite.FirstOrDefaultAsync(i => i.CompanyToken == code);
 
         if (invite == null)
         {
@@ -80,12 +84,12 @@ public class BTInviteService : IBTInviteService
             return false;
         }
 
-        var invite = await _context.Invites.FirstOrDefaultAsync(i => i.CompanyToken == code);
+        var invite = await _context.Invite.FirstOrDefaultAsync(i => i.CompanyToken == code);
 
-        if ((DateTime.Now - (await _context.Invites.FirstOrDefaultAsync(i => i.CompanyToken == code)).InviteDate).TotalDays <= 7)
+        if ((DateTime.Now - (await _context.Invite.FirstOrDefaultAsync(i => i.CompanyToken == code)).InviteDate).TotalDays <= 7)
         {
 
-            bool result = (await _context.Invites.FirstOrDefaultAsync(i => i.CompanyToken == code)).IsValid;
+            bool result = (await _context.Invite.FirstOrDefaultAsync(i => i.CompanyToken == code)).IsValid;
 
             return result;
         }

@@ -152,7 +152,7 @@ namespace BugTracker.Controllers
 
         public IActionResult ShowFile(int id)
         {
-            TicketAttachment ticketAttachment = _context.TicketAttachments.Find(id);
+            TicketAttachment ticketAttachment = _context.TicketAttachment.Find(id);
             string fileName = ticketAttachment.FileName;
             byte[] fileData = ticketAttachment.FileData;
             string ext = Path.GetExtension(fileName).Replace(".", "");
@@ -298,13 +298,17 @@ namespace BugTracker.Controllers
             return View(tickets);
         }
 
-        // public async Task<IActionResult> MyTickets (int? id)
-        //{
-        //  int ticketId;
+         public async Task<IActionResult> MyTickets ()
+         {
+            int companyId = User.Identity.GetCompanyId().Value;
+            string userId = _userManager.GetUserId(User);
+
+            List<Ticket> allTickets = await _ticketService.GetAllTicketsByCompanyAsync(companyId);
+            List<Ticket> myTickets = allTickets.Where(t=>t.DeveloperUserId==userId).ToList();
 
 
-        //return View(tickets);
-        //}
+            return View(myTickets);
+         }
         [HttpGet]
         public async Task<IActionResult> AssignTicket(int? ticketId)
         {

@@ -72,3 +72,5 @@ namespace BugTracker.Extensions
             }
 
         }
+    }
+}

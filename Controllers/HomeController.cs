@@ -58,7 +58,7 @@ namespace BugTracker.Controllers
 
             DashboardViewModel model = new()
             {
-               
+                // = await _companyInfoService.GetAllMembersAsync(companyId),
                 Projects = await _projectService.GetAllProjectsByCompany(companyId),
                 Tickets = await _ticketService.GetAllTicketsByCompanyAsync(companyId),
                 Members = await _companyInfoService.GetAllMembersAsync(companyId)

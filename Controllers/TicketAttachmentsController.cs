@@ -32,31 +32,30 @@ namespace BugTracker.Controllers
         }
 
         // GET: TicketAttachments/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+        //public async Task<IActionResult> Details(int? id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            var ticketAttachment = await _context.TicketAttachment
-                .Include(t => t.DeveloperUser)
-                .Include(t => t.OwnerUser)
-                .Include(t => t.Project)
-                .Include(t => t.TicketPriority)
-                .Include(t => t.TicketStatus)
-                .Include(t => t.TicketType)
-                .Include(t => t.Comments)
-                .Include(t => t.TicketAttachments)
-                .Include(t => t.Histories).ThenInclude(t => t.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (ticketAttachment == null)
-            {
-                return NotFound();
-            }
+        //    var ticketAttachment = await _context.TicketAttachment
+        //        .Include(t => t.OwnerUser)
+        //        .Include(t => t.Project)
+        //        .Include(t => t.TicketPriority)
+        //        .Include(t => t.TicketStatus)
+        //        .Include(t => t.TicketType)
+        //        .Include(t => t.Comments)
+        //        .Include(t => t.TicketAttachments)
+        //        .Include(t => t.Histories).ThenInclude(t => t.User)
+        //        .FirstOrDefaultAsync(m => m.Id == id);
+        //    if (ticketAttachment == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            return View(ticketAttachment);
-        }
+        //    return View(ticketAttachment);
+        //}
 
         // GET: TicketAttachments/Create
         public IActionResult Create()
@@ -80,7 +79,7 @@ namespace BugTracker.Controllers
 
                 ticketAttachment.FileData = ms.ToArray();
                 ticketAttachment.FileName = ticketAttachment.FormFile.FileName;
-                ticketAttachment.Created = DateTimeOffset.Now;
+                ticketAttachment.Created = DateTime.Now;
                 ticketAttachment.UserId = _userManager.GetUserId(User);
 
 
@@ -88,11 +87,12 @@ namespace BugTracker.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["TicketId"] = new SelectList(_context.Tickets, "Id", "Description", ticketAttachment.TicketId);
+            ViewData["TicketId"] = new SelectList(_context.Ticket, "Id", "Description", ticketAttachment.TicketId);
             ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", ticketAttachment.UserId);
             return View(ticketAttachment);
 
 
+        }
             // GET: TicketAttachments/Edit/5
             public async Task<IActionResult> Edit(int? id)
             {
@@ -110,75 +110,75 @@ namespace BugTracker.Controllers
                 return View(ticketAttachment);
             }
 
-        // POST: TicketAttachments/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Description,Created,TicketId,UserId,FileName,FileData,FileContentType")] TicketAttachment ticketAttachment)
-        {
-            if (id != ticketAttachment.Id)
+            // POST: TicketAttachments/Edit/5
+            // To protect from overposting attacks, enable the specific properties you want to bind to.
+            // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+            [HttpPost]
+            [ValidateAntiForgeryToken]
+            public async Task<IActionResult> Edit(int id, [Bind("Id,Description,Created,TicketId,UserId,FileName,FileData,FileContentType")] TicketAttachment ticketAttachment)
             {
-                return NotFound();
+                if (id != ticketAttachment.Id)
+                {
+                    return NotFound();
+                }
+
+                if (ModelState.IsValid)
+                {
+                    try
+                    {
+                        _context.Update(ticketAttachment);
+                        await _context.SaveChangesAsync();
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        if (!TicketAttachmentExists(ticketAttachment.Id))
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+                    return RedirectToAction(nameof(Index));
+                }
+                ViewData["TicketId"] = new SelectList(_context.Ticket, "Id", "Description", ticketAttachment.TicketId);
+                return View(ticketAttachment);
             }
 
-            if (ModelState.IsValid)
+            // GET: TicketAttachments/Delete/5
+            public async Task<IActionResult> Delete(int? id)
             {
-                try
+                if (id == null)
                 {
-                    _context.Update(ticketAttachment);
-                    await _context.SaveChangesAsync();
+                    return NotFound();
                 }
-                catch (DbUpdateConcurrencyException)
+
+                var ticketAttachment = await _context.TicketAttachment
+                    .Include(t => t.Ticket)
+                    .FirstOrDefaultAsync(m => m.Id == id);
+                if (ticketAttachment == null)
                 {
-                    if (!TicketAttachmentExists(ticketAttachment.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    return NotFound();
                 }
+
+                return View(ticketAttachment);
+            }
+
+            // POST: TicketAttachments/Delete/5
+            [HttpPost, ActionName("Delete")]
+            [ValidateAntiForgeryToken]
+            public async Task<IActionResult> DeleteConfirmed(int id)
+            {
+                var ticketAttachment = await _context.TicketAttachment.FindAsync(id);
+                _context.TicketAttachment.Remove(ticketAttachment);
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["TicketId"] = new SelectList(_context.Ticket, "Id", "Description", ticketAttachment.TicketId);
-            return View(ticketAttachment);
-        }
 
-        // GET: TicketAttachments/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
+            private bool TicketAttachmentExists(int id)
             {
-                return NotFound();
+                return _context.TicketAttachment.Any(e => e.Id == id);
             }
-
-            var ticketAttachment = await _context.TicketAttachment
-                .Include(t => t.Ticket)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (ticketAttachment == null)
-            {
-                return NotFound();
-            }
-
-            return View(ticketAttachment);
-        }
-
-        // POST: TicketAttachments/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var ticketAttachment = await _context.TicketAttachment.FindAsync(id);
-            _context.TicketAttachment.Remove(ticketAttachment);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool TicketAttachmentExists(int id)
-        {
-            return _context.TicketAttachment.Any(e => e.Id == id);
-        }
     }
 }

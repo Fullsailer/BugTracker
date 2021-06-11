@@ -23,7 +23,7 @@ namespace BugTracker.Models
         public int ProjectId { get; set; }
 
         [DisplayName("Invitor")]
-        public int InvitorId { get; set; }
+        public string InvitorId { get; set; }
 
         [DisplayName("Invitee")]
         public string InviteeId { get; set; }
@@ -32,11 +32,10 @@ namespace BugTracker.Models
         public string InviteeEmail { get; set; }
 
         [DisplayName("First Name")]
-        public String InviteeFristName { get; set; }
+        public string InviteeFirstName { get; set; }
 
         [DisplayName("Last Name")]
         public string InviteeLastName { get; set; }
-
 
 
         public bool IsValid { get; set; }
@@ -45,5 +44,6 @@ namespace BugTracker.Models
         public virtual BTUser Invitor { get; set; }
         public virtual BTUser Invitee { get; set; }
         public virtual Project Project { get; set; }
+
     }
 }

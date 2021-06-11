@@ -7,7 +7,7 @@
 <h1>Details</h1>
 <div class="card">
     <div class="file">
-        <a asp-action="ShowFile" asp-controller="Tickets" asp-route-Id="@item.Id">
+        <a asp-action="ShowFile" asp-controller="Tickets" asp-route-Id="@Model.Id"></a>
 
 <div>
     <h4>Ticket</h4>
@@ -111,4 +111,6 @@
 <div>
     <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>
+</div>
+        </div>
 </div>

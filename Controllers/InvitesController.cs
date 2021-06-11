@@ -11,6 +11,7 @@ using BugTracker.Models.ViewModels;
 using BugTracker.Extensions;
 using Microsoft.AspNetCore.Identity;
 using BugTracker.Services.Interfaces;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace BugTracker.Controllers
 {
@@ -21,18 +22,21 @@ namespace BugTracker.Controllers
         private readonly IBTProjectService _projectService;
         private readonly EmailService _emailService;
         private readonly IBTInviteService _inviteService;
+        private readonly IDataProtector _protector;
 
         public InvitesController(ApplicationDbContext context,
                                  UserManager<BTUser> userManager,
                                  IBTProjectService projectService,
                                  EmailService emailService,
-                                 IBTInviteService inviteService)
+                                 IBTInviteService inviteService,
+                                 IDataProtectionProvider protector)
         {
             _context = context;
             _userManager = userManager;
             _projectService = projectService;
             _emailService = emailService;
             _inviteService = inviteService;
+            _protector = protector.CreateProtector("BugTracker.MyClass.v1");
         }
 
         // GET: Invites
@@ -70,7 +74,7 @@ namespace BugTracker.Controllers
 
             if (User.IsInRole("Admin"))
             {
-                model.ProjectsList = new SelectList(_context.Projects, "Id", "Name");
+                model.ProjectsList = new SelectList(_context.Project, "Id", "Name");
             }
             else if (User.IsInRole("ProjectManager"))
             {
@@ -106,7 +110,7 @@ namespace BugTracker.Controllers
             await _emailService.SendEmailAsync(destination, subject, body);
 
             //Create record in the Invites table
-            Invite model = new()
+            Invite model = new ()
             {
                 InviteeEmail = viewModel.Email,
                 InviteeFirstName = viewModel.FirstName,
@@ -119,7 +123,7 @@ namespace BugTracker.Controllers
                 IsValid = true
             };
 
-            _context.Invites.Add(model);
+            _context.Invite.Add(model);
             _context.SaveChanges();
 
             return RedirectToAction("Dashboard", "Home");

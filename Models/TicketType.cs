@@ -15,5 +15,15 @@ namespace BugTracker.Models
         
         [DisplayName("Ticket Type")]
         public string Name { get; set; }
+
+        public string Company { get; set; }
+
+        public string Project { get; set; }
+
+        public string Invitor { get; set; }
+        public Guid CompanyToken { get; set; }
+        public string InviteeEmail { get;  set; }
+        public DateTime InviteDate { get; set; }
+        public bool IsValid { get; set; }
     }
 }
