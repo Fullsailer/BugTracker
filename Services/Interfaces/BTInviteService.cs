@@ -15,19 +15,16 @@ public class BTInviteService : IBTInviteService
     private readonly ApplicationDbContext _context;
     private readonly IBTProjectService _projectService;
     private readonly IEmailSender _emailService;
-    private readonly IBTCompanyInfoService _companyInfoService;
 
-    public BTInviteService(ApplicationDbContext context,
-                           IBTProjectService projectService,
-                           IEmailSender emailService,
-                           IBTCompanyInfoService companyInfoService)
+    public BTInviteService(ApplicationDbContext context, IBTProjectService projectService,
+                              IEmailSender emailService
+                              )
     {
         _context = context;
         _projectService = projectService;
         _emailService = emailService;
-        _companyInfoService = companyInfoService;
     }
-    
+
     public async Task<Invite> GetInviteAsync(Guid token, string email)
     {
         Invite invite = await _context.Invite.Include(i => i.Company)

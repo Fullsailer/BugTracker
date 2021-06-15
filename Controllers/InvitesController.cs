@@ -110,7 +110,7 @@ namespace BugTracker.Controllers
             await _emailService.SendEmailAsync(destination, subject, body);
 
             //Create record in the Invites table
-            Invite model = new ()
+            Invite model = new()
             {
                 InviteeEmail = viewModel.Email,
                 InviteeFirstName = viewModel.FirstName,
@@ -129,6 +129,7 @@ namespace BugTracker.Controllers
             return RedirectToAction("Dashboard", "Home");
         }
 
+        [HttpGet]
         public async Task<IActionResult> ProcessInvite(string token, string email)
         {
             if (token == null)
