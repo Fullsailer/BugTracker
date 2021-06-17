@@ -5,14 +5,31 @@ using System.Text;
 using BugTracker.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using static BugTracker.Data.DataUtilityClass;
 
 namespace BugTracker.Data
 {
     public class ApplicationDbContext : IdentityDbContext<BTUser>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        private readonly IConfiguration Configuration;
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IConfiguration configuration)
             : base(options)
         {
+            Configuration = configuration;
+        }
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder
+                .UseNpgsql(
+                    DataUtility.GetConnectionString(Configuration),
+            o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
+        }
+
+            public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options)
+        {
+
         }
         public DbSet<Company> Company { get; set; }
         public DbSet<Invite> Invite { get; set; }
