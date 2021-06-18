@@ -53,18 +53,21 @@ namespace BugTracker.Controllers
         [Authorize]
         public async Task<IActionResult> Dashboard()
         {
+            string userId = _userManager.GetUserId(User);
             int companyId = User.Identity.GetCompanyId().Value;
             
 
-            DashboardViewModel model = new()
+            DashboardViewModel viewModel = new()
             {
                 // = await _companyInfoService.GetAllMembersAsync(companyId),
                 Projects = await _projectService.GetAllProjectsByCompany(companyId),
-                Tickets = await _ticketService.GetAllTicketsByCompanyAsync(companyId),
-                Members = await _companyInfoService.GetAllMembersAsync(companyId)
+                DevelopmentTickets = await _ticketService.GetAllTicketsByRoleAsync("Developer", userId),
+                SubmittedTickets = await _ticketService.GetAllTicketsByRoleAsync("Submitter",userId),
+                Members = await _companyInfoService.GetAllMembersAsync(companyId),
+                CurrentUser = await _userManager.GetUserAsync(User)
             };
 
-            return View(model);
+            return View(viewModel);
         }
 
         [HttpPost]

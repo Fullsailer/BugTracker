@@ -35,7 +35,7 @@ namespace BugTracker
         {
             
             services.AddDbContext<ApplicationDbContext>(options =>
-                     options.UseNpgsql(Connection.GetConnectionString(Configuration)));
+                     options.UseNpgsql(Data.Connection.GetConnectionString(Configuration)));
             services.AddDatabaseDeveloperPageExceptionFilter();
 
             services.AddIdentity<BTUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
