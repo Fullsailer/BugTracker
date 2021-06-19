@@ -1,5 +1,112 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<BugTracker.Models.Ticket>
+
 @{
+    ViewData["Title"] = "Index";
 }
+
+<nav class="main-header navbar navbar-expand navbar-dark">
+    <!-- Left navbar links -->
+    <ul >
+        <h1>All Tickets</h1>
+        <li class="nav-item">
+            <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+        </li>
+        <li class="nav-item d-none d-sm-inline-block">
+            <a href="https://localhost:44366/Home/Dashboard#" class="nav-link">Dashboard</a>
+        </li>
+        <li class="nav-item d-none d-sm-inline-block">
+            <a asp-action="Create">Create New</a>
+        </li>
+    </ul>
+</nav>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Title)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Description)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Created)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Updated)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Archived)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.ArchivedDate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Project)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.TicketPriority)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.TicketStatus)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.TicketType)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.OwnerUser)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DeveloperUser)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Title)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Description)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Created)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Updated)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Archived)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ArchivedDate)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Project.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TicketPriority.Id)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TicketStatus.Id)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TicketType.Id)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.OwnerUser.Id)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DeveloperUser.Id)
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>

@@ -217,7 +217,7 @@
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                         <!-- Add icons to the links using the .nav-icon class
-                             with font-awesome or any other icon font library -->
+         with font-awesome or any other icon font library -->
                         <li class="nav-item menu-open">
                             <a href="#" class="nav-link active">
                                 <i class="nav-icon fas fa-ticket-alt"></i>
@@ -249,19 +249,19 @@
                                 <li class="nav-item">
                                     <a href="/Tickets/Create" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Create a New Ticket</p>
+                                        <p>Create New Ticket</p>
                                     </a>
                                 </li>
                             </ul>
                         </li>
-                       
+
                         <li class="nav-item">
-                            <a href="/Projects/Details" class="nav-link">
+                            <a href="/Projects/Index" class="nav-link">
                                 <i class="nav-icon fas fa-copy"></i>
                                 <p>
                                     Projects
                                     <i class="fas fa-angle-left right"></i>
-                                    <span class="badge badge-info right">2</span>
+                                    <span class="badge badge-info right">3</span>
                                 </p>
                             </a>
                             <ul class="nav nav-treeview">
@@ -277,6 +277,12 @@
                                         <p>My Projects</p>
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="/Projects/Create" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Create New Project</p>
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item">
@@ -286,7 +292,16 @@
                                     New Invite
                                     <i class="right fas fa-angle-left"></i>
                                 </p>
-                            </a>   
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="~/Identity/Account/Logout" class="nav-link">
+                                <i class="nav-icon fas fa-sign-out-alt"></i>
+                                <p>
+                                    Log Out
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
                         </li>
                     </ul>
                 </nav>
@@ -324,10 +339,7 @@
 
                                 <div class="info-box-content">
                                     <span class="info-box-text">Development Tickets</span>
-                                    <span class="info-box-number">
-                                        10
-                                        <small>%</small>
-                                    </span>
+                                    <span class="info-box-number"> @Model.DevelopmentTickets.Count </span>
                                 </div>
                                 <!-- /.info-box-content -->
                             </div>
@@ -369,7 +381,7 @@
 
                                 <div class="info-box-content">
                                     <span class="info-box-text">Projects</span>
-                                    <span class="info-box-number">2,000</span>
+                                    <span class="info-box-number">@Model.Projects.Count</span>
                                 </div>
                                 <!-- /.info-box-content -->
                             </div>
