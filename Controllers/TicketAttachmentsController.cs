@@ -32,30 +32,31 @@ namespace BugTracker.Controllers
         }
 
         // GET: TicketAttachments/Details/5
-        //public async Task<IActionResult> Details(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
 
-        //    var ticketAttachment = await _context.TicketAttachment
-        //        .Include(t => t.OwnerUser)
-        //        .Include(t => t.Project)
-        //        .Include(t => t.TicketPriority)
-        //        .Include(t => t.TicketStatus)
-        //        .Include(t => t.TicketType)
-        //        .Include(t => t.Comments)
-        //        .Include(t => t.TicketAttachments)
-        //        .Include(t => t.Histories).ThenInclude(t => t.User)
-        //        .FirstOrDefaultAsync(m => m.Id == id);
-        //    if (ticketAttachment == null)
-        //    {
-        //        return NotFound();
-        //    }
+            }
 
-        //    return View(ticketAttachment);
-        //}
+            var ticketAttachment = await _context.TicketAttachment
+                .Include(t => t.OwnerUser)
+                .Include(t => t.Project)
+                .Include(t => t.TicketPriority)
+                .Include(t => t.TicketStatus)
+                .Include(t => t.TicketType)
+                .Include(t => t.Comments)
+                .Include(t => t.TicketAttachments)
+                .Include(t => t.Histories).ThenInclude(t => t.User)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (ticketAttachment == null)
+            {
+                return NotFound();
+            }
+
+            return View(ticketAttachment);
+        }
 
         // GET: TicketAttachments/Create
         public IActionResult Create()
