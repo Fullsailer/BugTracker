@@ -71,6 +71,7 @@ namespace BugTracker.Extensions
                 return $"The file extension {ext} is not allowed!";
             }
 
+
+
         }
     }
-}
