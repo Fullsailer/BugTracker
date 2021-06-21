@@ -5,7 +5,9 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using BugTracker.Extensions;
 using Microsoft.AspNetCore.Http;
+using static BugTracker.Extensions.MaxFileSizeAttribute;
 
 namespace BugTracker.Models
 {
