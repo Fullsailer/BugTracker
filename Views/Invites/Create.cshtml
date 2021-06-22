@@ -1,4 +1,12 @@
 ﻿@model BugTracker.Models.ViewModels.InviteViewModel
+@using Microsoft.AspNetCore.Identity
+@using BugTracker.Services.Interfaces
+@inject UserManager<BTUser> BTUserManager
+
+@{ 
+    BTUser btUser = await BTUserManager.GetUserAsync(User);
+}
+
 
 <div class="col-lg-6 col-md-12">
     <div class="card custom-card">

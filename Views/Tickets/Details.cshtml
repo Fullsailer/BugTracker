@@ -1,5 +1,8 @@
 ﻿@model BugTracker.Models.Ticket
 
+@using BugTracker.Services.Interfaces
+@inject IBTFileService BTFileService
+
 @{
     ViewData["Title"] = "Details";
 }

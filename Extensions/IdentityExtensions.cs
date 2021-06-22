@@ -14,6 +14,7 @@ namespace BugTracker.Extensions
             Claim claim = ((ClaimsIdentity)identity).FindFirst("CompanyId");
             return (claim != null) ? int.Parse(claim.Value) : null;
 
+            // Another way to write return ternary (three part statement) above.
             //int result = 0;
             //if (claim != null)
             //{
