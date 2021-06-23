@@ -19,6 +19,7 @@ namespace BugTracker.Models.ViewModels
 
         public BTUser CurrentUser { get; set; }
 
+        public Company Company { get; set; }
         
     }
 }
