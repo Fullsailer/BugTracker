@@ -1,7 +1,7 @@
 # BugTracker
-Creates a ticket to track bugs and projects for companies and teams.
 
 BugTracker (Issue tracker)
+
 Issue tracking systems are generally used in collaborative settings—especially in large or distributed collaborations—but can also be employed by individuals as part of a time management or personal productivity regime. These systems often encompass resource allocation, time accounting, priority management, and oversight workflow in addition to implementing a centralized issue registry. 
 
 In the institutional setting, issue tracking systems are commonly used in an organization's customer support call center to create, update, and resolve reported customer issues, or even issues reported by that organization's other employees. A support ticket should include vital information for the account involved and the issue encountered. An issue tracking system may sometime contain a knowledge base containing information on each customer, resolutions to common problems, and other such data. 
